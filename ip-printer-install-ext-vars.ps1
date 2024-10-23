@@ -1,14 +1,40 @@
-# Script d'installation pilotes et imprimantes
+# Script d'installation pilotes et imprimantes avec variables externe
 # ip-printer-install.ps1
 # Author: Jr0w3
 # Release: 23/10/2024
 
+# Il faut appeler le script de la manière suivante:
+# .\ip-printer-install.ps1 -driverName "XXXX" -infPath "XXXX" -printerName "XXXX" -printerIP "XXXX"
 
-# Variables à remplir
-$driverName = "XXXX" # Nom du pilote dans le package
-$infPath = "XXXX" # Chemin vers le fichier .inf du package
-$printerName = "XXXX" # Nom à donner à l'imprimante
-$printerIP = "XXXX" # Adresse IP de l'imprimante
+param(
+    [Parameter(Mandatory = $true)]
+    [string]$driverName,
+    
+    [Parameter(Mandatory = $true)]
+    [string]$infPath,
+    
+    [Parameter(Mandatory = $true)]
+    [string]$printerName,
+
+    [Parameter(Mandatory = $true)]
+    [string]$printerIP
+)
+
+function Test-VariableExist {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string[]]$VariableNames
+    )
+
+    foreach ($VariableName in $VariableNames) {
+        if (Test-Path variable:\$VariableName) {
+            Write-Output "La variable `$${VariableName} existe."
+        } else {
+            Write-CustomLog -LogEntryType "Error" -LogMessage "La variable `$${VariableName} n'existe pas."
+            exit
+        }
+    }
+}
 
 function Write-CustomLog {
     param (
@@ -18,7 +44,7 @@ function Write-CustomLog {
     )
 
     $logName = "Application"
-    $source = "PowerShellScripts"
+    $source = "IP-Printer-PS-Install"
     $fixedEventID = 1000  # EventID fixe
 
     # Vérifier si la source existe, sinon la créer
@@ -30,6 +56,10 @@ function Write-CustomLog {
     Write-EventLog -LogName $logName -Source $source -EventID $fixedEventID -EntryType $LogEntryType -Message $LogMessage
     Write-Host $LogMessage
 }
+
+Test-VariableExist -VariableNames "driverName", "infPath", "printerName", "printerIP"
+
+pause
 
 # Test d'accès au fichier
     $IsPathExist = Test-Path -Path $infPath -ErrorAction Stop
