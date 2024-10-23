@@ -18,7 +18,7 @@ function Write-CustomLog {
     )
 
     $logName = "Application"
-    $source = "PowerShellScripts"
+    $source = "IP-Printer-PS-Install"
     $fixedEventID = 1000  # EventID fixe
 
     # Vérifier si la source existe, sinon la créer
